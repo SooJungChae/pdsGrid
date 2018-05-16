@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>포스트잇 만들기</title>
+    <script type="text/javascript" src="./script/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="./script/pdscore.js"></script>
+    <script type="text/javascript" src="./script/pdsgrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="./style/pds.core.css" />
+  </head>
+  <script type="text/javascript">
+  var age = [10, 15, , 22];
+  var text = [12345, "yo"];
+  var gender = ["girl", "boy"];
+
+  // 해당 column 별로 데이터를 위치시켜야 한다.
+  var pdsDataSource = [
+    {data: age, columnname: "title"},
+    {data: text, columnname: "title2"},
+    {data: gender, columnname: "title3"}
+  ];
+
+  $(document).ready(function() {
+    $("#pdsGrid").pdsGrid({
+      width:800,
+      height:500,
+      source: pdsDataSource,
+      columns: [
+        {text: "title", width: '30%', align: 'center'},
+        {text: "title2", type: "textbox", width: '30%', align: 'right'},
+        {text: "title3", align: 'left'}
+      ]
+    });
+  });
+
+  </script>
+  <body>
+    테스트 페이지입니다.
+    <div id="pdsGrid"></div>
+    <div id="test"></div>
+  </body>
+</html>
