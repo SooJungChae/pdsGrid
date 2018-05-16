@@ -14,7 +14,7 @@ I want to give experience to coworkers make grid easily.
 20180516 Support making a grid form with column and row attribute.
 
 # Screenshots
-![Alt example of grid](/img/grid.png)
+![Alt example of grid](grid.png)
 
 # Tech/framework used
 javascript
