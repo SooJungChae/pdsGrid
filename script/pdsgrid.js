@@ -1,30 +1,14 @@
 // pdsgrid 만을 다룬다.
 // 프레임워크를 사용해서 pdsgrid 를 만든다.
 (function(pbf) {
-  console.log('grid')
+  console.log('grid');
 
   // pbf.pds 에 pdsGrid 를 만든다.
   pbf.pds.pdsWidget("pdsGrid");
 
-  // pbf.extend(pbf.pds._pdsGrid.prototype, {
-  //   defineInstance: function() {
-  //     var defaultValue = {
-  //       width: 250,
-  //       height: 300
-  //     }
-  //     return defaultValue;
-  //   },
-  //   makeWidget: function() {
-  //     var g = "<p>test</p>";
-  //     document.getElementById("test").innerHTML(g);
-  //       //console.log('make')
-  //       // https://medium.com/@bluesh55/javascript-prototype-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-f8e67c286b67
-  //   }
-  // });
+  // ***----------- pdsGrid 만의 method
 
-  var col = 0;
-
-  // 일단! 그리드를 만들어보자.
+  // 맨 처음 그리드가 만들어질 때 입력되는 default 값들
   var defaultValue = {
         width: 250,
         height: 300,
@@ -43,12 +27,16 @@
     return defaultValue;
   };
 
-  function isHtmlElement(obj) {
-    return (typeof obj === "object") &&
-      (obj.nodeType === 1)
-  }
-  pbf.pds._pdsGrid.prototype.makeWidget = function(gridInstance) {
-      var ins = gridInstance;
+  // defaultValue 값을 변경한다.
+  pbf.pds._pdsGrid.prototype.setInstance = function(a) {
+    //console.log(a);
+    //pbf.extend()
+    pbf.extend(pbf.pds._pdsGrid.prototype, a);
+  };
+
+  pbf.pds._pdsGrid.prototype.makeWidget = function() {
+      // var ins = gridInstance;
+      var ins = this;
       var tr = document.createElement("tr");
       var th = document.createElement("th");
       var td = document.createElement("td");
@@ -82,7 +70,7 @@
 
       // 컨텐츠 만들기
       var sourceData = this.getDataFromSource(ins.source);
-      var rowData = this.columnToRow(gridInstance.columns, sourceData);
+      var rowData = this.columnToRow(ins.columns, sourceData);
 
       for (var i = 0; i < rowData.length; i++) {
         tr = document.createElement("tr");
@@ -207,6 +195,56 @@
       arr[source[i].columnname] = source[i].data
     }
     return arr;
+  }
+
+  // 이런 extend 방식으로도 구현해보고 있음.
+  pbf.extend(pbf.pds._pdsGrid.prototype, {
+    addHandlers: function() {
+
+      console.log('add!')
+      // rowselect 를 하면 어떻게 될 건지에 대한 return 값도 들어오게 된다.
+      if (this.rowselect) {
+        this.rowselect();
+      }
+
+      console.log(pbf.pds._pdsGrid.prototype);
+
+    },
+    begincelledit: function() {
+
+      console.log('begincelledit!')
+    },
+    // 그리드 row 를 클릭하면 event 발생한다.
+    rowselect: function(e) {
+
+
+
+    }
+  });
+  return;
+  //   makeWidget: function() {
+  //     var g = "<p>test</p>";
+  //     document.getElementById("test").innerHTML(g);
+  //       //console.log('make')
+  //       // https://medium.com/@bluesh55/javascript-prototype-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-f8e67c286b67
+  //   }
+  // });
+
+  // 컬럼 갯수에 따라서 그리드를 만들어 줘야 해서 global 변수가 필요하다.
+  var col = 0;
+
+  function isHtmlElement(obj) {
+    return (typeof obj === "object") &&
+      (obj.nodeType === 1)
+  }
+
+
+
+  // addHandlers 호출?
+  // begincelledit
+  pbf.pds._pdsGrid.prototype.begincelledit = function() {
+    console.log('begincelledit');
+    return "abc";
   }
 
   function createElementFromHTML(htmlString) {

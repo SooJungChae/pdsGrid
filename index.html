@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>포스트잇 만들기</title>
+    <title>그리드 만들기</title>
     <script type="text/javascript" src="./script/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="./script/pdscore.js"></script>
     <script type="text/javascript" src="./script/pdsgrid.js"></script>
@@ -13,7 +13,6 @@
   var text = [12345, "yo"];
   var gender = ["girl", "boy"];
 
-  // 해당 column 별로 데이터를 위치시켜야 한다.
   var pdsDataSource = [
     {data: age, columnname: "title"},
     {data: text, columnname: "title2"},
@@ -21,6 +20,7 @@
   ];
 
   $(document).ready(function() {
+    console.log('ready!');
     $("#pdsGrid").pdsGrid({
       width:800,
       height:500,
@@ -29,7 +29,14 @@
         {text: "title", width: '30%', align: 'center'},
         {text: "title2", type: "textbox", width: '30%', align: 'right'},
         {text: "title3", align: 'left'}
-      ]
+      ],
+      
+      begincelledit: function(e) {
+        console.log('begincelledit');
+      },
+      rowselect: function(e) {
+        console.log('rowselect!');
+      }
     });
   });
 
