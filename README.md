@@ -1,9 +1,10 @@
+![Coveralls bitbucket branch](https://img.shields.io/coveralls/bitbucket/pyKLIP/pyklip/master.svg)
+![Packagist](https://img.shields.io/packagist/l/doctrine/orm.svg)
+
+**_This project is currently in development._**
+
 # pdsGrid
-Make a grid
-
-I'm making grid module.
-
-# Project title
+I'm making a grid module.
 
 # Motivation
 Grid is essential part of website and has a lot of functions. 
