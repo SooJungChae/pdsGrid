@@ -11,30 +11,30 @@
 // Slidizle 참고하기~
 (function(){
 
-  function pdsGrid(options) {
+  function pdsGrid() {
     // If you make empty function,
     // you don't need to check that exists when you call function.
     this.settings = {
       columns : {},
       rowselect : function() {}
     };
-
-    this.init(options);
   };
 
-  pdsGrid.prototype.init = function(options) {
+  pdsGrid.prototype.init = function($this, options) {
     var _this = this;
 
     // Merge default options and new options
     _this.extendSettings(options);
 
-    _this.addHandlers(_this.settings);
+    // Add event handlers.
+    _this.addHandlers($this, _this.settings);
   }
 
   pdsGrid.prototype.extendSettings = function(options) {
     this.settings = $.extend({}, this.settings, options);
   }
 
+  // Draw grid on object
   pdsGrid.prototype.makeWidget = function($this, options) {
     var _this = this;
     var ins = options;
@@ -175,8 +175,10 @@
     }
   }
 
-  pdsGrid.prototype.addHandlers = function(settings) {
-    // ==== ???? 
+  pdsGrid.prototype.addHandlers = function($this, settings) {
+    var _this = this;
+
+    $(document).on("click", $this, settings.rowselect);
   }
 
   function isHtmlElement(obj) {
@@ -189,17 +191,14 @@
    * Add jQuery plugin
   */
   $.fn.pdsGrid = function(options) {
-    console.log('pdsGrid');
-    var $this = this;
 
-    // Draw grid on object
-    pdsGrid.prototype.makeWidget($this, options);
+    var $this = this;
 
     // Make pdsGrid instance
     var _pdsGrid = new pdsGrid(options);
 
     /* Init pdsGrid */
-    _pdsGrid.init(options);
+    _pdsGrid.init($this, options);
 
     /* Draw pdsGrid */
     _pdsGrid.makeWidget($this, options);
