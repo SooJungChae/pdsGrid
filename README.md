@@ -1,9 +1,10 @@
+![Coveralls bitbucket branch](https://img.shields.io/coveralls/bitbucket/pyKLIP/pyklip/master.svg)
+![Packagist](https://img.shields.io/packagist/l/doctrine/orm.svg)
+
+**_This project is currently in development._**
+
 # pdsGrid
-Make a grid
-
-I'm making grid module.
-
-# Project title
+I'm making a grid module.
 
 # Motivation
 Grid is essential part of website and has a lot of functions. 
@@ -14,14 +15,14 @@ I want to give experience to coworkers make grid easily.
 20180516 Support making a grid form with column and row attribute.
 
 # Screenshots
-![Alt example of grid](/img/grid.png)
+![Alt example of grid](grid.png)
 
 # Tech/framework used
 javascript
 jQuery
 
 # Code Example
-```
+```ruby
   var age = [10, 15, , 22];
   var text = [12345, "yo"];
   var gender = ["girl", "boy"];
@@ -49,10 +50,9 @@ jQuery
 # Contribute
 Please give me pull request
 
-
 # Attributes
 * 그리드 사이즈 (width, height)
-```
+```ruby
 $(“#pdsGrid”).pdsGrid({ width: 850 });
 $(“#pdsGrid”).pdsGrid({ height: 600 });
 ```
@@ -104,14 +104,17 @@ $(“#pdsGrid”).pdsGrid({ height: 600 });
 * 다음 페이지 이동 (nextpage)
 * 이전 페이지 이동 (beforepage)
 
-이벤트
-DB바인딩이 완료되었을 때 (bindingcomplete)
-행이 선택되었을 때 (rowselected)
-데이터가 선택되었을 때 (cellclicked)
-데이터 수정을 시작할 때 (begincelledit)
-데이터 수정이 끝났을 때 (endcelledit)
-
-
+# Event handlers
+* DB바인딩이 완료되었을 때 (bindingcomplete)
+```ruby
+$("#pdsGrid").pdsGrid("bindingcomplete", function() {
+  console.log("binding complete");
+});
+```
+* 행이 선택되었을 때 (rowselected)
+* 데이터가 선택되었을 때 (cellclicked)
+* 데이터 수정을 시작할 때 (begincelledit)
+* 데이터 수정이 끝났을 때 (endcelledit)
 
 버튼
 버튼은 생성, 수정, 삭제가 있다.
