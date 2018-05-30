@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>그리드 만들기</title>
     <script type="text/javascript" src="./script/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="./script/pdscore.js"></script>
+    <!-- <script type="text/javascript" src="./script/pdscore.js"></script> -->
     <script type="text/javascript" src="./script/pdsgrid.js"></script>
     <link rel="stylesheet" type="text/css" href="./style/pds.core.css" />
   </head>
@@ -20,7 +20,7 @@
   ];
 
   $(document).ready(function() {
-    console.log('ready!');
+    
     $("#pdsGrid").pdsGrid({
       width:800,
       height:500,
@@ -30,7 +30,7 @@
         {text: "title2", type: "textbox", width: '30%', align: 'right'},
         {text: "title3", align: 'left'}
       ],
-      
+
       begincelledit: function(e) {
         console.log('begincelledit');
       },
@@ -38,6 +38,17 @@
         console.log('rowselect!');
       }
     });
+
+
+    // 다음 구문은 callback 이 가능하게 한다.
+    // $("#pdsGrid").pdsGrid({
+    //     width: 400,
+    //     rowselect: function(e) {
+    //       console.log('rowselect!');
+    //     }
+    // });
+
+
   });
 
   </script>

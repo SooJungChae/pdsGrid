@@ -12,7 +12,9 @@
 
   // pdsGrid 가 호출되면 호출된 property 값으로 기존 값을 바꿔준다.
   $.fn.pdsGrid = function(a) {
+    console.log(a);
     console.log('[core] pdsGrid 호출');
+    return;
 
     // pdsgrid 의 instance 를 새로운 것으로 바꿔준다.
     pbf.pds._pdsGrid.prototype.setInstance(a);
@@ -22,8 +24,8 @@
 
     // 이벤트 핸들러를 생성한다.
     pbf.pds._pdsGrid.prototype.addHandlers();
-    
-return;
+
+
 
 
     console.log(pbf);
@@ -45,7 +47,7 @@ return;
   (function(pbf) {
     pbf.pds = pbf.pds || {};
     window.pds = pbf.pds;
-
+    console.log('pbf pds 추가');
     pbf.pds.define = function(widgetType) {
       console.log('define '+ widgetType);
 

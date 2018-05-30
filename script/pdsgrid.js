@@ -1,58 +1,63 @@
-// pdsgrid 만을 다룬다.
-// 프레임워크를 사용해서 pdsgrid 를 만든다.
-(function(pbf) {
-  console.log('grid');
+/**
+ * pdsGrid jQuery Plugin
+ *
+ * This plugin makes html grid.
+ *
+ * Author : SooJungChae
+ * Create : 2018-05-29
+ * Version : 0.0.0
+**/
 
-  // pbf.pds 에 pdsGrid 를 만든다.
-  pbf.pds.pdsWidget("pdsGrid");
+// Slidizle 참고하기~
+(function(){
 
-  // ***----------- pdsGrid 만의 method
+  function pdsGrid(options) {
 
-  // 맨 처음 그리드가 만들어질 때 입력되는 default 값들
-  var defaultValue = {
-        width: 250,
-        height: 300,
-        columns: [{
-          text: "",
-          columntype: "default",
-          celltype: "string",
-          align: "left",
-          dbcolumnname: ""
-        }],
-        source: null,
-        placeholder: ""
+
+    // 빈 function 을 만들면 호출할 때 있는지 없는지 체크할 필요가 없다.
+    this.settings = {
+      columns : {},
+      rowselect : function() {}
+    };
+
+    this.init(options);
+    console.log('init');
+  };
+
+  pdsGrid.prototype.init = function(options) {
+    var _this = this;
+
+    // Merge default options and new options
+    _this.extendSettings(options);
+
+    _this.addHandlers(_this.settings);
   }
 
-  pbf.pds._pdsGrid.prototype.getInstance = function() {
-    return defaultValue;
-  };
+  pdsGrid.prototype.extendSettings = function(options) {
+    this.settings = $.extend({}, this.settings, options);
+  }
 
-  // defaultValue 값을 변경한다.
-  pbf.pds._pdsGrid.prototype.setInstance = function(a) {
-    //console.log(a);
-    //pbf.extend()
-    pbf.extend(pbf.pds._pdsGrid.prototype, a);
-  };
+  pdsGrid.prototype.makeWidget = function($this, options) {
+    var _this = this;
+    var ins = options;
 
-  pbf.pds._pdsGrid.prototype.makeWidget = function() {
-      // var ins = gridInstance;
-      var ins = this;
-      var tr = document.createElement("tr");
-      var th = document.createElement("th");
-      var td = document.createElement("td");
+    var tr = document.createElement("tr");
+    var th = document.createElement("th");
+    var td = document.createElement("td");
 
-      var gridwrap = document.createElement("div");
-      gridwrap.className = "pdsGridWrap";
-      gridwrap.style.width = ins.width + "px";
-      gridwrap.style.height = ins.height + "px";
+    var gridwrap = document.createElement("div");
+    gridwrap.className = "pdsGridWrap";
+    gridwrap.style.width = ins.width + "px";
+    gridwrap.style.height = ins.height + "px";
 
-      var grid = document.createElement("table");
-      grid.className = "pdsGrid";
+    var grid = document.createElement("table");
+    grid.className = "pdsGrid";
 
-      // column & row 만들기
+    // Make column & row
+    if (ins.columns) {
       var columnnames = [];
 
-      // 헤더 만들기
+      // Make header
       for (var i = 0; i < ins.columns.length; i++) {
         th = document.createElement("th");
         th.innerHTML = ins.columns[i].text;
@@ -64,46 +69,72 @@
 
         tr.appendChild(th);
         grid.appendChild(tr);
-
-        col++;
       }
 
-      // 컨텐츠 만들기
-      var sourceData = this.getDataFromSource(ins.source);
-      var rowData = this.columnToRow(ins.columns, sourceData);
+      // Make Contents
+      if (ins.source) {
+        var sourceData = _this.getDataFromSource(ins.source);
+        var rowData = _this.columnToRow(ins.columns, sourceData);
 
-      for (var i = 0; i < rowData.length; i++) {
-        tr = document.createElement("tr");
-        for (var j = 0; j < rowData[i].length; j ++) {
-          td = document.createElement("td");
+        for (var i = 0; i < rowData.length; i++) {
+          tr = document.createElement("tr");
 
-          // column 별로 style 적용한다.
-          this.columnStyle(td, ins.columns[j], rowData[i][j]);
+          for (var j = 0; j < rowData[i].length; j ++) {
+            td = document.createElement("td");
 
-          // if (isHtmlElement(this.columnStyle(ins.columns[j], rowData[i][j]))) {
-          //   appendChild(this.columnStyle(td, ins.columns[j], rowData[i][j]));
-          // }
-          // else {
-          //   innerHTML = this.columnStyle(td, ins.columns[j], rowData[i][j]);
-          // }
-          tr.appendChild(td);
+            _this.columnStyle(td, ins.columns[j], rowData[i][j]);
+
+            tr.appendChild(td);
+          }
+          grid.appendChild(tr);
         }
-        grid.appendChild(tr);
       }
-
-      gridwrap.appendChild(grid);
-
-      document.getElementById("pdsGrid").appendChild(gridwrap);
-
-      // var frag = document.createDocumentFragment();
-      // var grid_head = "<tr><th></th></tr>";
-      // var e = document.createElement("table");
-      // e.innerHTML = grid_head;
-      // e.className = "pdsGrid";
-      //frag.appendChild(e);
+    }
+    gridwrap.appendChild(grid);
+    $this[0].appendChild(gridwrap);
   }
 
-  pbf.pds._pdsGrid.prototype.columnStyle = function(td, column, value) {
+  pdsGrid.prototype.getDataFromSource = function(source) {
+    var arr = [];
+
+    for (var i = 0; i < source.length; i++) {
+      arr[source[i].columnname] = source[i].data
+    }
+    return arr;
+  }
+
+  pdsGrid.prototype.columnToRow = function(gridColumns, gridSource) {
+
+    var colname = "",
+        source = "";
+    var newRow = [];
+
+    // add null if no data in the cell
+    // so you need maxlength of source
+    var maxRow = 0;
+    for (var item in gridSource) {
+      if (maxRow < gridSource[item].length)
+        maxRow = gridSource[item].length;
+    }
+
+    for (var colIdx in gridColumns) {
+      colname = gridColumns[colIdx].text;
+      source = gridSource[colname];
+
+      for (var sourceIdx = 0; sourceIdx < maxRow; sourceIdx ++){
+
+        // make dimensional array
+        if (colIdx == 0)
+          newRow[sourceIdx] = [];
+
+        newRow[sourceIdx][colIdx] = source[sourceIdx] ? source[sourceIdx] : "";
+      }
+    }
+    return newRow;
+  }
+
+
+  pdsGrid.prototype.columnStyle = function(td, column, value) {
     var obj = value;
 
     if (column.type) {
@@ -147,91 +178,9 @@
     }
   }
 
-  pbf.pds._pdsGrid.prototype.columnToRow = function(gridColumns, gridSource) {
+  pdsGrid.prototype.addHandlers = function(settings) {
 
-    // 컬럼에서 columnname 의 인덱스를 찾는다.
-    var cols = [];
-    var source = gridSource;
-    var getColumns = gridColumns.map(function(obj) {
-      cols.push(obj.text);
-    });
-
-    var maxrow = 0;
-    var newArr = [];
-
-    for (var item in source) {
-      if (maxrow < source[item].length) maxrow = source[item].length;
-    }
-
-    // row 2차원 배열 만들기
-    for (var i = 0; i < maxrow; i++) {
-      newArr[i] = [];
-    }
-
-    // columnname 인덱스에 source 를 위치시킨다.
-    var colName = "";
-    var placeholder = this.getInstance().placeholder;
-
-    for (var col = 0; col < cols.length; col++) {
-      colName = cols[col];
-
-      for (var row = 0; row < maxrow; row++) {
-          if (source[cols[col]]) {
-            newArr[row][cols.indexOf(colName)] = (source[colName][row]) ? source[colName][row] : placeholder;
-          }
-          else {
-            newArr[row][col] = placeholder;
-          }
-      }
-    }
-
-    return newArr;
   }
-
-  pbf.pds._pdsGrid.prototype.getDataFromSource = function(source) {
-    var arr = [];
-
-    for (var i = 0; i < source.length; i++) {
-      arr[source[i].columnname] = source[i].data
-    }
-    return arr;
-  }
-
-  // 이런 extend 방식으로도 구현해보고 있음.
-  pbf.extend(pbf.pds._pdsGrid.prototype, {
-    addHandlers: function() {
-
-      console.log('add!')
-      // rowselect 를 하면 어떻게 될 건지에 대한 return 값도 들어오게 된다.
-      if (this.rowselect) {
-        this.rowselect();
-      }
-
-      console.log(pbf.pds._pdsGrid.prototype);
-
-    },
-    begincelledit: function() {
-
-      console.log('begincelledit!')
-    },
-    // 그리드 row 를 클릭하면 event 발생한다.
-    rowselect: function(e) {
-
-
-
-    }
-  });
-  return;
-  //   makeWidget: function() {
-  //     var g = "<p>test</p>";
-  //     document.getElementById("test").innerHTML(g);
-  //       //console.log('make')
-  //       // https://medium.com/@bluesh55/javascript-prototype-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-f8e67c286b67
-  //   }
-  // });
-
-  // 컬럼 갯수에 따라서 그리드를 만들어 줘야 해서 global 변수가 필요하다.
-  var col = 0;
 
   function isHtmlElement(obj) {
     return (typeof obj === "object") &&
@@ -239,27 +188,251 @@
   }
 
 
+  /*
+   * Add jQuery plugin
+  */
+  $.fn.pdsGrid = function(options) {
+    console.log('pdsGrid');
+    var $this = this;
 
-  // addHandlers 호출?
-  // begincelledit
-  pbf.pds._pdsGrid.prototype.begincelledit = function() {
-    console.log('begincelledit');
-    return "abc";
-  }
+    // Draw grid on object
+    pdsGrid.prototype.makeWidget($this, options);
 
-  function createElementFromHTML(htmlString) {
-    var div = document.createElement('div');
-    div.innerHTML = htmlString.trim();
+    // Make pdsGrid instance
+    var _pdsGrid = new pdsGrid(options);
 
-    // Change this to div.childNodes to support multiple top-level nodes
-    return div.firstChild;
-  }
+    /* Init pdsGrid */
+    _pdsGrid.init(options);
 
-  function searchStringInArray (str, arr) {
-    for (var j = 0; j < arr.length; j++) {
-      if (arr[j].match(str)) return j;
-    }
-    return -1;
-  }
+    /* Draw pdsGrid */
+    _pdsGrid.makeWidget($this, options);
+  };
+})();
 
-})(pdsBaseFramework);
+//
+// (function(pbf){
+//   var pdsGrid = (function(){
+//     function pdsGrid() {
+//       console.log('grid')
+//     }
+//
+//     pdsGrid.prototype.makeWidget = function() {
+//       console.log('makewidget')
+//     }
+//   })();
+//
+//   pbf.pds.pdsGrid = pdsGrid;
+//   console.log(pbf.pds.pdsGrid);
+// })(pdsBaseFramework);
+
+
+
+// (function(pbf) {
+//   console.log('grid');
+//
+//
+//
+//   pbf.pds.pdsGrid.prototype.makeWidget = function() {
+//       // var ins = gridInstance;
+//       var ins = this;
+//       var tr = document.createElement("tr");
+//       var th = document.createElement("th");
+//       var td = document.createElement("td");
+//
+//       var gridwrap = document.createElement("div");
+//       gridwrap.className = "pdsGridWrap";
+//       gridwrap.style.width = ins.width + "px";
+//       gridwrap.style.height = ins.height + "px";
+//
+//       var grid = document.createElement("table");
+//       grid.className = "pdsGrid";
+//
+//       // column & row 만들기
+//       var columnnames = [];
+//
+//       // 헤더 만들기
+//       for (var i = 0; i < ins.columns.length; i++) {
+//         th = document.createElement("th");
+//         th.innerHTML = ins.columns[i].text;
+//         columnnames.push(ins.columns[i].text);
+//
+//         if (ins.columns[i].width) {
+//            th.width = ins.columns[i].width;
+//         }
+//
+//         tr.appendChild(th);
+//         grid.appendChild(tr);
+//
+//         col++;
+//       }
+//
+//       // 컨텐츠 만들기
+//       var sourceData = this.getDataFromSource(ins.source);
+//       var rowData = this.columnToRow(ins.columns, sourceData);
+//
+//       for (var i = 0; i < rowData.length; i++) {
+//         tr = document.createElement("tr");
+//         for (var j = 0; j < rowData[i].length; j ++) {
+//           td = document.createElement("td");
+//
+//           // column 별로 style 적용한다.
+//           this.columnStyle(td, ins.columns[j], rowData[i][j]);
+//
+//           // if (isHtmlElement(this.columnStyle(ins.columns[j], rowData[i][j]))) {
+//           //   appendChild(this.columnStyle(td, ins.columns[j], rowData[i][j]));
+//           // }
+//           // else {
+//           //   innerHTML = this.columnStyle(td, ins.columns[j], rowData[i][j]);
+//           // }
+//           tr.appendChild(td);
+//         }
+//         grid.appendChild(tr);
+//       }
+//
+//       gridwrap.appendChild(grid);
+//
+//       document.getElementById("pdsGrid").appendChild(gridwrap);
+//
+//       // var frag = document.createDocumentFragment();
+//       // var grid_head = "<tr><th></th></tr>";
+//       // var e = document.createElement("table");
+//       // e.innerHTML = grid_head;
+//       // e.className = "pdsGrid";
+//       //frag.appendChild(e);
+//   }
+//
+//
+//   return;
+//   // pbf.pds 에 pdsGrid 를 만든다.
+//   pbf.pds.pdsWidget("pdsGrid");
+//
+//   // ***----------- pdsGrid 만의 method
+//
+//   var Events = [];
+//
+//   // 맨 처음 그리드가 만들어질 때 입력되는 default 값들
+//   var defaultValue = {
+//         width: 250,
+//         height: 300,
+//         columns: [{
+//           text: "",
+//           columntype: "default",
+//           celltype: "string",
+//           align: "left",
+//           dbcolumnname: ""
+//         }],
+//         source: null,
+//         placeholder: ""
+//   }
+//
+//   pbf.pds._pdsGrid.prototype.getInstance = function() {
+//     return defaultValue;
+//   };
+//
+//   // defaultValue 값을 변경한다.
+//   pbf.pds._pdsGrid.prototype.setInstance = function(a) {
+//     //console.log(a);
+//     //pbf.extend()
+//     pbf.extend(pbf.pds._pdsGrid.prototype, a);
+//   };
+//
+
+//
+//     // row 2차원 배열 만들기
+//     for (var i = 0; i < maxrow; i++) {
+//       newArr[i] = [];
+//     }
+//
+//     // columnname 인덱스에 source 를 위치시킨다.
+//     var colName = "";
+//     var placeholder = this.getInstance().placeholder;
+//
+//     for (var col = 0; col < cols.length; col++) {
+//       colName = cols[col];
+//
+//       for (var row = 0; row < maxrow; row++) {
+//           if (source[cols[col]]) {
+//             newArr[row][cols.indexOf(colName)] = (source[colName][row]) ? source[colName][row] : placeholder;
+//           }
+//           else {
+//             newArr[row][col] = placeholder;
+//           }
+//       }
+//     }
+//
+//     return newArr;
+//   }
+//
+//   pbf.pds._pdsGrid.prototype.getDataFromSource = function(source) {
+//     var arr = [];
+//
+//     for (var i = 0; i < source.length; i++) {
+//       arr[source[i].columnname] = source[i].data
+//     }
+//     return arr;
+//   }
+//
+//   // addEvent().addEventHandler();
+//   pbf.pds._pdsGrid.prototype.OnRowSelect = function(target) {
+//     return target;
+//   }
+//
+//   pbf.pds._pdsGrid.prototype.addEvent = function(event) {
+//     this.events.push(event);
+//   }
+//   // rowselect (rowidx, cellvalue)
+//   // 이런 extend 방식으로도 구현해보고 있음.
+//   pbf.extend(pbf.pds._pdsGrid.prototype, {
+//     addHandlers: function() {
+//
+//       console.log('add!')
+//       // rowselect 를 한 후의 행동
+//       if (this.rowselect) {
+//         this.rowselect();
+//       }
+//
+//       console.log(pbf.pds._pdsGrid.prototype);
+//
+//     },
+//     begincelledit: function() {
+//       console.log('begincelledit!')
+//     },
+//     // 그리드 row 를 클릭하면 event 발생한다.
+//     rowselect: function(e) {
+//     }
+//   });
+//   return;
+//   //   makeWidget: function() {
+//   //     var g = "<p>test</p>";
+//   //     document.getElementById("test").innerHTML(g);
+//   //       //console.log('make')
+//   //       // https://medium.com/@bluesh55/javascript-prototype-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-f8e67c286b67
+//   //   }
+//   // });
+//
+//   // 컬럼 갯수에 따라서 그리드를 만들어 줘야 해서 global 변수가 필요하다.
+//   var col = 0;
+//
+//   // addHandlers 호출?
+//   // begincelledit
+//   pbf.pds._pdsGrid.prototype.begincelledit = function() {
+//     console.log('begincelledit');
+//     return "abc";
+//   }
+//
+//   function createElementFromHTML(htmlString) {
+//     var div = document.createElement('div');
+//     div.innerHTML = htmlString.trim();
+//
+//     // Change this to div.childNodes to support multiple top-level nodes
+//     return div.firstChild;
+//   }
+//
+//   function searchStringInArray (str, arr) {
+//     for (var j = 0; j < arr.length; j++) {
+//       if (arr[j].match(str)) return j;
+//     }
+//     return -1;
+//   }
+//
+// })(pdsBaseFramework);
